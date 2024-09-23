@@ -40,8 +40,6 @@ click==8.1.7
 cloudpickle==2.2.1
 colorama==0.4.6
 comm==0.1.4
-conda==23.3.1
-conda-build==3.24.0
 constantly==15.1.0
 cookiecutter==2.1.1
 cryptography==40.0.2
