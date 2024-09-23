@@ -11,7 +11,7 @@ argon2-cffi==21.1.0
 argon2-cffi-bindings==21.1.0
 arrow==1.2.3
 astroid==2.14.2
-astropy==5.2.3
+astropy==5.2.2
 asttokens==2.2.1
 async-timeout==4.0.3
 atomicwrites==1.4.0
