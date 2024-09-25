@@ -7,7 +7,7 @@ import locale
 app = Flask(__name__)
 
 # Cargar el archivo CSV
-df = pd.read_csv('/Users/macbookpro/Downloads/archivo_clientes.csv')
+df = pd.read_csv('https://github.com/ablomarcovjk-meru/my-flask-api/blob/main/archivos_clientes.csv')
 
 # Convertir las fechas a formato datetime
 df['SO_FULFILMENT_DATE'] = pd.to_datetime(df['SO_FULFILMENT_DATE'], format='%d/%m/%y')
