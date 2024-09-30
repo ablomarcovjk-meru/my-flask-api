@@ -7,7 +7,7 @@ import locale
 app = Flask(__name__)
 
 # Cargar el archivo CSV
-df = pd.read_csv('https://github.com/ablomarcovjk-meru/my-flask-api/blob/main/archivos_clientes.csv')
+df = pd.read_csv('https://raw.githubusercontent.com/ablomarcovjk-meru/my-flask-api/refs/heads/main/archivos_clientes.csv?token=GHSAT0AAAAAACX5VEHX7DDQ7Z53BEU6S2CMZX3GAPQ')
 
 
 # Convertir las fechas a formato datetime
