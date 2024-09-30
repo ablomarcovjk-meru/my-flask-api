@@ -14,7 +14,7 @@ df = pd.read_csv('https://raw.githubusercontent.com/ablomarcovjk-meru/my-flask-a
 df['SO_FULFILMENT_DATE'] = pd.to_datetime(df['SO_FULFILMENT_DATE'], format='%d/%m/%y')
 
 # Establecer la configuración regional para el formato de moneda
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+locale.setlocale(locale.LC_ALL, '')
 
 # Función para formatear el precio con símbolo de dólar
 def formatear_precio(valor):
