@@ -6,26 +6,25 @@ import locale
 
 app = Flask(__name__)
 
-# Cargar el archivo CSV
+# Load CSV file
 df = pd.read_csv('https://raw.githubusercontent.com/ablomarcovjk-meru/my-flask-api/refs/heads/main/archivos_clientes.csv?token=GHSAT0AAAAAACX5VEHX7DDQ7Z53BEU6S2CMZX3GAPQ', encoding='utf-8')
 
-
-# Convertir las fechas a formato datetime
+# Convert dates to datetime format
 df['SO_FULFILMENT_DATE'] = pd.to_datetime(df['SO_FULFILMENT_DATE'], format='%d/%m/%y')
 
-# Establecer la configuración regional para el formato de moneda
+# Locale for currency formatting
 locale.setlocale(locale.LC_ALL, '')
 
-# Función para formatear el precio con símbolo de dólar
+# Function to format price with dollar symbol
 def formatear_precio(valor):
     return "${:,.2f}".format(valor)  # Format as $1,234.56
 
-# Función para obtener el nombre del mes en español
+# Function to get the month name in Spanish
 def obtener_nombre_mes(mes_periodo):
     meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
     return meses[mes_periodo.month - 1]
 
-# Función para identificar los meses en los que no compró en 2024
+# Function to identify months without purchases in 2024
 def meses_sin_compras_2024(cliente_data):
     compras_2024 = cliente_data[cliente_data['SO_FULFILMENT_DATE'].dt.year == 2024]
     fecha_actual = datetime.now()
@@ -34,7 +33,7 @@ def meses_sin_compras_2024(cliente_data):
     meses_no_comprados_2024 = [mes for mes in todos_los_meses_2024 if mes not in meses_comprados_2024]
     return [obtener_nombre_mes(mes) for mes in meses_no_comprados_2024]
 
-# Función para identificar desde qué mes no compraba en 2023
+# Function to identify the last month of purchase in 2023
 def mes_ultima_compra_2023(cliente_data):
     compras_2023 = cliente_data[cliente_data['SO_FULFILMENT_DATE'].dt.year == 2023]
     if compras_2023.empty:
@@ -42,9 +41,9 @@ def mes_ultima_compra_2023(cliente_data):
     ultima_compra_2023 = compras_2023['SO_FULFILMENT_DATE'].max()
     return obtener_nombre_mes(ultima_compra_2023.to_period('M'))
 
-# Función para buscar el cliente por ID o nombre
+# Main function to search customer by ID or name
 def buscar_cliente(criterio, tipo_busqueda='CUSTOMER_MOS_ID'):
-    # Si se busca por nombre, buscar el nombre más cercano usando fuzzy matching
+    # If searching by name, use fuzzy matching to find the closest name
     if tipo_busqueda == 'CUSTOMER_FULL_NAME':
         cliente_data = df[df['CUSTOMER_FULL_NAME'].apply(lambda x: fuzz.ratio(x.lower(), criterio.lower())) > 80]
     else:
@@ -53,6 +52,7 @@ def buscar_cliente(criterio, tipo_busqueda='CUSTOMER_MOS_ID'):
     if cliente_data.empty:
         return f"No se encontraron datos para el cliente con {tipo_busqueda}: {criterio}"
 
+    # Extract the variables to be returned
     ultima_compra = cliente_data['SO_FULFILMENT_DATE'].max()
     ultima_compra_str = ultima_compra.strftime('%Y-%m-%d')
     fecha_actual = datetime.now()
@@ -74,12 +74,14 @@ def buscar_cliente(criterio, tipo_busqueda='CUSTOMER_MOS_ID'):
     promedio_1P = cliente_data[cliente_data['LISTING_TIER'] == '1P']['TOTAL_QUANTITY'].mean()
     promedio_3P = cliente_data[cliente_data['LISTING_TIER'] == '3P']['TOTAL_QUANTITY'].mean()
 
+    # Get the top 3 products by quantity
     top_3_productos = cliente_data.groupby(['PRODUCT_DESCRIPTION', 'LISTING_TIER']).agg({'TOTAL_QUANTITY': 'sum', 'TOTAL_AMOUNT': 'sum'}).nlargest(3, 'TOTAL_QUANTITY')
     top_3 = [(producto, cantidad, formatear_precio(monto), tier) for (producto, tier), (cantidad, monto) in top_3_productos.iterrows()]
 
     meses_no_comprados_2024 = meses_sin_compras_2024(cliente_data)
     mes_no_compraba_2023 = mes_ultima_compra_2023(cliente_data)
 
+    # Return all the variables as part of a JSON response
     return {
         'Cliente': criterio,
         'Ultima compra': ultima_compra_str,
@@ -100,14 +102,14 @@ def set_utf8_charset(response):
     response.headers["Content-Type"] = "application/json; charset=utf-8"
     return response
 
-# Ruta para buscar por CUSTOMER_MOS_ID
+# Route to search by CUSTOMER_MOS_ID
 @app.route('/buscar_por_id', methods=['GET'])
 def buscar_por_id():
     cliente_id = request.args.get('cliente_id')
     resultado = buscar_cliente(cliente_id, tipo_busqueda='CUSTOMER_MOS_ID')
     return jsonify(resultado)
 
-# Ruta para buscar por nombre del cliente
+# Route to search by CUSTOMER_FULL_NAME
 @app.route('/buscar_por_nombre', methods=['GET'])
 def buscar_por_nombre():
     nombre_cliente = request.args.get('nombre_cliente')
@@ -120,3 +122,4 @@ if __name__ == '__main__':
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
