@@ -7,7 +7,7 @@ import locale
 app = Flask(__name__)
 
 # Cargar el archivo CSV
-df = pd.read_csv('https://raw.githubusercontent.com/ablomarcovjk-meru/my-flask-api/refs/heads/main/archivos_clientes.csv?token=GHSAT0AAAAAACX5VEHX7DDQ7Z53BEU6S2CMZX3GAPQ')
+df = pd.read_csv('https://raw.githubusercontent.com/ablomarcovjk-meru/my-flask-api/refs/heads/main/archivos_clientes.csv?token=GHSAT0AAAAAACX5VEHX7DDQ7Z53BEU6S2CMZX3GAPQ', encoding='utf-8')
 
 
 # Convertir las fechas a formato datetime
@@ -94,6 +94,11 @@ def buscar_cliente(criterio, tipo_busqueda='CUSTOMER_MOS_ID'):
         'Meses sin compras en 2024': meses_no_comprados_2024,
         'Desde que mes no compraba en 2023': mes_no_compraba_2023
     }
+
+@app.after_request
+def set_utf8_charset(response):
+    response.headers["Content-Type"] = "application/json; charset=utf-8"
+    return response
 
 # Ruta para buscar por CUSTOMER_MOS_ID
 @app.route('/buscar_por_id', methods=['GET'])
