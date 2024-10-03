@@ -18,7 +18,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 # Función para formatear el precio con símbolo de dólar
 def formatear_precio(valor):
-    return locale.currency(valor, grouping=True)
+    return "${:,.2f}".format(valor)  # Format as $1,234.56
 
 # Función para obtener el nombre del mes en español
 def obtener_nombre_mes(mes_periodo):
