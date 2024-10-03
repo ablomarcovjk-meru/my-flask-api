@@ -81,18 +81,18 @@ def buscar_cliente(criterio, tipo_busqueda='CUSTOMER_MOS_ID'):
     mes_no_compraba_2023 = mes_ultima_compra_2023(cliente_data)
 
     return {
-        'Cliente': criterio,},
-        {'Ultima compra': ultima_compra_str},
-        {'Dias sin comprarnos': dias_sin_compra},
-        {'Cada cuantos dias compra (promedio)': dias_promedio},
-        {'Producto mas comprado': producto_mas_comprado},
-        {'Mes con mas compras': obtener_nombre_mes(mes_mas_compras)},
-        {'Mes con menos compras': nombre_mes_menos_compras},
-        {'Promedio cantidad 1P': round(promedio_1P, 2) if not pd.isna(promedio_1P) else 0},
-        {'Promedio cantidad 3P': round(promedio_3P, 2) if not pd.isna(promedio_3P) else 0},
-        {'Top 3 productos': top_3,}
-        {'Meses sin compras en 2024': meses_no_comprados_2024},
-        {'Desde que mes no compraba en 2023': mes_no_compraba_2023}
+        'Cliente': criterio,
+        'Ultima compra': ultima_compra_str,
+        'Dias sin comprarnos': dias_sin_compra,
+        'Cada cuantos dias compra (promedio)': dias_promedio,
+        'Producto mas comprado': producto_mas_comprado,
+        'Mes con mas compras': obtener_nombre_mes(mes_mas_compras),
+        'Mes con menos compras': nombre_mes_menos_compras,
+        'Promedio cantidad 1P': round(promedio_1P, 2) if not pd.isna(promedio_1P) else 0,
+        'Promedio cantidad 3P': round(promedio_3P, 2) if not pd.isna(promedio_3P) else 0,
+        'Top 3 productos': top_3,
+        'Meses sin compras en 2024': meses_no_comprados_2024,
+        'Desde que mes no compraba en 2023': mes_no_compraba_2023,
     }
 
 @app.after_request
