@@ -103,25 +103,24 @@ def set_utf8_charset(response):
     response.headers["Content-Type"] = "application/json; charset=utf-8"
     return response
 
-# Route to search by ID or name using POST and JSON body
-@app.route('/buscar_cliente', methods=['POST'])
-def buscar_cliente_por_json():
+@app.route('/buscar_por_id', methods=['POST'])
+def buscar_por_id():
     data = request.get_json()
-
-    # Extract 'buscar_por_id' and 'buscar_por_nombre' from the JSON body
     cliente_id = data.get('buscar_por_id')
-    nombre_cliente = data.get('buscar_por_nombre')
-
-    # Search by CUSTOMER_MOS_ID if 'buscar_por_id' is present
-    if cliente_id:
-        resultado = buscar_cliente(cliente_id, tipo_busqueda='CUSTOMER_MOS_ID')
-    # Otherwise, search by CUSTOMER_FULL_NAME if 'buscar_por_nombre' is present
-    elif nombre_cliente:
-        resultado = buscar_cliente(nombre_cliente, tipo_busqueda='CUSTOMER_FULL_NAME')
-    else:
-        resultado = {"error": "Por favor proporciona 'buscar_por_id' o 'buscar_por_nombre' en el cuerpo de la solicitud."}
-    
+    if not cliente_id:
+        return jsonify({'error': 'El campo buscar_por_id es requerido'}), 400
+    resultado = buscar_cliente(cliente_id, tipo_busqueda='CUSTOMER_MOS_ID')
     return jsonify(resultado)
+
+@app.route('/buscar_por_nombre', methods=['POST'])
+def buscar_por_nombre():
+    data = request.get_json()
+    nombre_cliente = data.get('buscar_por_nombre')
+    if not nombre_cliente:
+        return jsonify({'error': 'El campo buscar_por_nombre es requerido'}), 400
+    resultado = buscar_cliente(nombre_cliente, tipo_busqueda='CUSTOMER_FULL_NAME')
+    return jsonify(resultado)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
