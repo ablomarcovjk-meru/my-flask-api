@@ -12,7 +12,7 @@ app = Flask(__name__)
 df = pd.read_csv('https://raw.githubusercontent.com/ablomarcovjk-meru/my-flask-api/refs/heads/main/archivos_clientes.csv?token=GHSAT0AAAAAACX5VEHX7DDQ7Z53BEU6S2CMZX3GAPQ', encoding='utf-8')
 
 # Convert dates to datetime format
-df['SO_FULFILMENT_DATE'] = pd.to_datetime(df['SO_FULFILMENT_DATE'], format='%d/%m/%y')
+df['SO_FULFILMENT_DATE'] = pd.to_datetime(df['SO_FULFILMENT_DATE'], format='%Y-%m-%d')
 
 # Locale for currency formatting
 locale.setlocale(locale.LC_ALL, '')
