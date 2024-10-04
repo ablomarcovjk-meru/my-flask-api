@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import pandas as pd
 from datetime import datetime
 from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 import locale
 import os
 
@@ -42,11 +43,29 @@ def mes_ultima_compra_2023(cliente_data):
     ultima_compra_2023 = compras_2023['SO_FULFILMENT_DATE'].max()
     return obtener_nombre_mes(ultima_compra_2023.to_period('M'))
 
-# Main function to search customer by ID or name
+# Main function to search customer by ID, name, or email
 def buscar_cliente(criterio, tipo_busqueda='CUSTOMER_MOS_ID'):
     # If searching by name, use fuzzy matching to find the closest name
     if tipo_busqueda == 'CUSTOMER_FULL_NAME':
-        cliente_data = df[df['CUSTOMER_FULL_NAME'].apply(lambda x: fuzz.ratio(x.lower(), criterio.lower())) > 80]
+        nombres = df['CUSTOMER_FULL_NAME'].tolist()
+        mejor_coincidencia, puntuacion = process.extractOne(criterio, nombres, scorer=fuzz.token_sort_ratio)
+        
+        if puntuacion < 80:
+            return f"No se encontraron coincidencias cercanas para el nombre del cliente: {criterio}"
+
+        cliente_data = df[df['CUSTOMER_FULL_NAME'] == mejor_coincidencia]
+
+    # If searching by email, use fuzzy matching for emails
+    elif tipo_busqueda == 'EMAIL':
+        correos = df['EMAIL'].tolist()
+        mejor_coincidencia, puntuacion = process.extractOne(criterio, correos, scorer=fuzz.token_sort_ratio)
+        
+        if puntuacion < 80:
+            return f"No se encontraron coincidencias cercanas para el correo: {criterio}"
+
+        cliente_data = df[df['EMAIL'] == mejor_coincidencia]
+
+    # If searching by ID
     else:
         cliente_data = df[df['CUSTOMER_MOS_ID'] == criterio]
     
@@ -84,7 +103,7 @@ def buscar_cliente(criterio, tipo_busqueda='CUSTOMER_MOS_ID'):
 
     # Return all the variables as part of a JSON response
     return {
-        'Cliente': criterio,
+        'Cliente': mejor_coincidencia if tipo_busqueda in ['CUSTOMER_FULL_NAME', 'EMAIL'] else criterio,
         'Ultima compra': ultima_compra_str,
         'Dias sin comprarnos': dias_sin_compra,
         'Cada cuantos dias compra (promedio)': dias_promedio,
@@ -121,6 +140,14 @@ def buscar_por_nombre():
     resultado = buscar_cliente(nombre_cliente, tipo_busqueda='CUSTOMER_FULL_NAME')
     return jsonify(resultado)
 
+@app.route('/buscar_por_correo', methods=['POST'])
+def buscar_por_correo():
+    data = request.get_json()
+    correo_cliente = data.get('buscar_por_correo')
+    if not correo_cliente:
+        return jsonify({'error': 'El campo buscar_por_correo es requerido'}), 400
+    resultado = buscar_cliente(correo_cliente, tipo_busqueda='EMAIL')
+    return jsonify(resultado)
 
 if __name__ == '__main__':
     app.run(debug=True)
